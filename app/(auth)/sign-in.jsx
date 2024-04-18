@@ -1,10 +1,11 @@
-import { View, Text, ScrollView, Image, StatusBar } from "react-native";
+import { View, Text, ScrollView, Image } from "react-native";
 import React from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/formField";
 import CustomButton from "../../components/customButton";
 import { Link } from "expo-router";
+import { StatusBar } from "expo-status-bar";
 
 const SignIn = () => {
   const [form, setForm] = React.useState({
@@ -23,30 +24,26 @@ const SignIn = () => {
               className="w-[120px] h-[80px]"
               resizeMode="contain"
             />
-
             <Text className="text-2xl text-white font-psemibold mb-8">
               Log in to Aora
             </Text>
-
             <FormField
               title="Email"
               value={form.email}
               handleChangeText={(e) => setForm({ ...form, email: e })}
-              otherStyles="mb-8"
-              keyboardType="email"
+              otherStyles="mb-6"
+              keyboardType="email-address"
             />
-
             <FormField
               title="Password"
               value={form.password}
               handleChangeText={(e) => setForm({ ...form, password: e })}
-              otherStyles="mb-8"
+              otherStyles="mb-6"
             />
-
             <CustomButton
               title="Sign In"
               handlePress={() => console.log("Signing in . . .")}
-              containerStyles="w-full mb-8"
+              containerStyles="w-full mb-6"
             />
 
             <View>
