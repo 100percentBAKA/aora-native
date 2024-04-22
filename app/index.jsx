@@ -4,8 +4,11 @@ import { images } from "../constants";
 import CustomButton from "../components/customButton";
 import { StatusBar } from "expo-status-bar";
 import { router } from "expo-router";
+import { useGlobalContext } from "../context/GlobalProvider";
 
 const App = () => {
+  const { isLoading, isLogged } = useGlobalContext();
+
   return (
     <SafeAreaView className="bg-primary h-full">
       <ScrollView contentContainerStyle={{ height: "100%" }}>
@@ -42,7 +45,7 @@ const App = () => {
           </Text>
 
           <CustomButton
-            title="Continue with Email"
+            title={!isLoading && isLogged ? "Continue" : "Continue with Email"}
             handlePress={() => router.push("sign-in")}
             containerStyles="w-full mt-8"
           />

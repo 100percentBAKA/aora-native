@@ -11,11 +11,12 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/formField";
 import CustomButton from "../../components/customButton";
-import { Link, router } from "expo-router";
+import { Link, Redirect, router } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { createUser } from "../../lib/appwrite";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
-// !  global debug
+// ! global debug
 const debug = true;
 
 const SignUp = () => {
@@ -27,6 +28,7 @@ const SignUp = () => {
 
   // ! isSubmitting state will handle the activityLoading animation
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { isLoading, isLogged, setIsLogged, setUser } = useGlobalContext();
 
   // ! main logic to sign-up
   const handleSignUp = async () => {
@@ -45,8 +47,10 @@ const SignUp = () => {
     try {
       const result = await createUser(form.email, form.password, form.username);
       debug && console.log(result);
+      setUser(result);
+      setIsLogged(true);
 
-      // ! set global state here . . .
+      // ! perform toast handling here . . .
 
       router.replace("/home");
     } catch (error) {
@@ -56,6 +60,11 @@ const SignUp = () => {
       setIsSubmitting(false);
     }
   };
+
+  // ! if the user is logged in, redirect to home
+  if (!isLoading && isLogged) {
+    return <Redirect href="/home" />;
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">

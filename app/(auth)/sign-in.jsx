@@ -11,9 +11,10 @@ import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/formField";
 import CustomButton from "../../components/customButton";
-import { Link, router } from "expo-router";
+import { Link, router, Redirect } from "expo-router";
 import { StatusBar } from "expo-status-bar";
 import { logUser } from "../../lib/appwrite";
+import { useGlobalContext } from "../../context/GlobalProvider";
 
 const debug = true;
 
@@ -24,6 +25,7 @@ const SignIn = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
+  const { isLoading, isLogged, setIsLogged, setUser } = useGlobalContext();
 
   const handleSignIn = async () => {
     debug && console.log(`\nEmail: ${form.email}\nPassword: ${form.password}`);
@@ -38,8 +40,10 @@ const SignIn = () => {
     try {
       const result = await logUser(form.email, form.password);
       debug && console.log(result);
+      setUser(result);
+      setIsLogged(true);
 
-      // ! set global states if needed
+      // ! toast handling can be performed here . . .
 
       router.replace("/home");
     } catch (error) {
@@ -48,6 +52,11 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+
+  // ! if the user is logged in, redirect to home
+  if (!isLoading && isLogged) {
+    return <Redirect href="/home" />;
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -92,7 +101,7 @@ const SignIn = () => {
               <Text className="text-lg text-white font-pregular text-center w-full">
                 Don't have an account ?{" "}
                 <Link className="text-secondary-200" href="/sign-up">
-                  Sign up
+                  Register
                 </Link>
               </Text>
             </View>
