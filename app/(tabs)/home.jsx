@@ -1,42 +1,39 @@
 import { View, Text, FlatList, Image, RefreshControl } from "react-native";
 import React, { useState } from "react";
-import { signOut } from "../../lib/appwrite";
-import { useGlobalContext } from "../../context/GlobalProvider";
-import { router } from "expo-router";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import SearchInput from "../../components/searchInput";
 import Trending from "../../components/trending";
 import EmptyDisplay from "../../components/empty";
 import { StatusBar } from "expo-status-bar";
+import { useAppwrite } from "../../lib/useAppwrite";
+import { getAllPosts, getLatestPosts } from "../../lib/appwrite";
+import VideoCard from "../../components/videoCard";
+
+const debug = false;
 
 const Home = () => {
-  const { setUser, setIsLogged } = useGlobalContext();
   const [refreshing, setRefreshing] = useState(false);
+  const { data: posts, isLoading, refetch } = useAppwrite(getAllPosts);
+  const { data: latestPosts, isLoading: latestPostLoading } =
+    useAppwrite(getLatestPosts);
 
   const onRefresh = async () => {
     setRefreshing(true);
-    // ! logic to refresh and fetch data
+    await refetch();
     setRefreshing(false);
   };
 
-  const handleOnPress = async () => {
-    const result = await signOut();
-    setUser(null);
-    setIsLogged(false);
+  debug && console.log(posts);
 
-    router.replace("/sign-in");
-  };
+  debug && console.log(latestPosts);
 
   return (
     <SafeAreaView className="bg-primary h-full">
       <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }]}
-        // data={[]}
+        data={posts}
         keyExtractor={(item) => item.$id}
-        renderItem={({ item }) => (
-          <Text className="text-3xl text-white">{item.id}</Text>
-        )} // explains react native how the items are to be rendered
+        renderItem={({ item }) => <VideoCard video={item} />} // ! explains react native how the items are to be rendered
         ListHeaderComponent={() => (
           <View className="my-6 px-4 space-y-6">
             {/* // ! this view is for title header */}
@@ -46,7 +43,7 @@ const Home = () => {
                   Welcome Back
                 </Text>
                 <Text className="font-psemibold text-2xl text-gray-200">
-                  JSMastery
+                  Adarsh G S
                 </Text>
               </View>
 
@@ -61,13 +58,13 @@ const Home = () => {
               <SearchInput />
             </View>
 
+            {/* // ! trending posts */}
             <View className="w-full flex-1 pt-5 pb-8">
               <Text className="text-gray-100 text-lg font-pregular mb-3">
-                Latest Videos
+                Trending Videos
               </Text>
 
-              {/* // ! trending videos */}
-              <Trending posts={[{ id: 1 }, { id: 2 }, { id: 3 }] ?? []} />
+              <Trending posts={latestPosts} />
               {/* // ! '??' is null coalescing, returns null values if the posts is null or undefined */}
             </View>
           </View>
@@ -92,9 +89,3 @@ const Home = () => {
 };
 
 export default Home;
-
-{
-  /* <TouchableOpacity onPress={() => handleOnPress()}>
-<Text>Logout</Text>
-</TouchableOpacity> */
-}

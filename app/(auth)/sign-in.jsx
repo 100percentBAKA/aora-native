@@ -16,7 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { logUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
-const debug = true;
+const debug = false;
 
 const SignIn = () => {
   const [form, setForm] = React.useState({
@@ -41,6 +41,8 @@ const SignIn = () => {
       const result = await logUser(form.email, form.password);
       debug && console.log(result);
       setUser(result);
+      debug && console.log("Setting result");
+      debug && console.log(result);
       setIsLogged(true);
 
       // ! toast handling can be performed here . . .
