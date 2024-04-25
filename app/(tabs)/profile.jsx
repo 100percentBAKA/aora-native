@@ -1,5 +1,12 @@
-import { View, Text, FlatList, Image, TouchableOpacity } from "react-native";
-import React from "react";
+import {
+  View,
+  Text,
+  FlatList,
+  Image,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
+import React, { useEffect, useState } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import VideoCard from "../../components/videoCard";
 import { icons } from "../../constants";
@@ -9,31 +16,46 @@ import { getUserPosts, signOut } from "../../lib/appwrite";
 import EmptyDisplay from "../../components/empty";
 import { router } from "expo-router";
 
-const debug = true;
+const debug = false;
 
 const Profile = () => {
+  const [userData, setUserData] = useState([]);
+  const [isLoading, setIsLoading] = useState(true);
   // ! get the user details form the global context
   const { user, setIsLogged, setUser } = useGlobalContext();
-  debug && console.log("User data from global context");
-  debug && console.log(user);
-  debug && console.log("User id from global context");
-  // debug && console.log(user.$id);
 
-  const { data: userData } = useAppwrite(() => getUserPosts(user.$id));
+  useEffect(() => {
+    // ! handle the promise
+    getUserPosts(user.$id)
+      .then((res) => {
+        debug && console.log("User Data: ");
+        debug && console.log(res);
+        setUserData(res);
+      })
+      .catch((err) => {
+        throw new Error(err);
+      })
+      // ! setIsLoading to false now
+      .finally(() => setIsLoading(false));
+  }, []);
 
-  debug && console.log("User Data: ");
-  debug && console.log(userData);
-
-  // ! logout
   const logout = async () => {
     await signOut();
-
-    // ! clean up the global context
-    setIsLogged(false);
     setUser(null);
+    setIsLogged(false);
 
     router.replace("/sign-in");
   };
+
+  if (isLoading) {
+    return (
+      <SafeAreaView
+        style={{ flex: 1, justifyContent: "center", alignItems: "center" }}
+      >
+        <ActivityIndicator size="large" />
+      </SafeAreaView>
+    );
+  }
 
   return (
     <SafeAreaView className="bg-primary h-full">
@@ -58,7 +80,7 @@ const Profile = () => {
                 {/* // ! icon */}
                 <View className="w-16 h-16 rounded-lg border-secondary-200 border flex items-center justify-center">
                   <Image
-                    source={{ uri: user?.avatar }}
+                    source={{ uri: userData[0].users.avatar }}
                     className="w-[90%] h-[90%] rounded-lg"
                     resizeMode="cover"
                   />
@@ -67,7 +89,7 @@ const Profile = () => {
                 {/* // ! name */}
                 <View>
                   <Text className="text-white font-psemibold text-xl">
-                    {user?.username}
+                    {userData[0].users.username || "John Doe"}
                   </Text>
                 </View>
 
