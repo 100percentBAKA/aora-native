@@ -85,7 +85,7 @@ const SignUp = () => {
               value={form.username}
               handleChangeText={(e) => setForm({ ...form, username: e })}
               otherStyles="mb-6"
-              keyboardType="username"
+              keyboardType="default"
             />
             <FormField
               title="Email"

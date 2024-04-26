@@ -6,7 +6,7 @@ import {
   Alert,
   ActivityIndicator,
 } from "react-native";
-import React from "react";
+import React, { useEffect } from "react";
 import { SafeAreaView } from "react-native-safe-area-context";
 import { images } from "../../constants";
 import FormField from "../../components/formField";
@@ -16,7 +16,7 @@ import { StatusBar } from "expo-status-bar";
 import { logUser } from "../../lib/appwrite";
 import { useGlobalContext } from "../../context/GlobalProvider";
 
-const debug = true;
+const debug = false;
 
 const SignIn = () => {
   const [form, setForm] = React.useState({
@@ -25,7 +25,8 @@ const SignIn = () => {
   });
 
   const [isSubmitting, setIsSubmitting] = React.useState(false);
-  const { isLoading, isLogged, setIsLogged, setUser } = useGlobalContext();
+  const { isLoading, isLogged, setIsLogged, setUser, user } =
+    useGlobalContext();
 
   const handleSignIn = async () => {
     debug && console.log(`\nEmail: ${form.email}\nPassword: ${form.password}`);
@@ -41,6 +42,7 @@ const SignIn = () => {
       const result = await logUser(form.email, form.password);
       debug && console.log(result);
       setUser(result);
+
       setIsLogged(true);
 
       // ! toast handling can be performed here . . .
@@ -52,6 +54,12 @@ const SignIn = () => {
       setIsSubmitting(false);
     }
   };
+
+  // ! check if the user is updated in the global context or not
+  useEffect(() => {
+    debug && console.log("User: ");
+    debug && console.log(user);
+  }, [user]);
 
   // ! if the user is logged in, redirect to home
   if (!isLoading && isLogged) {
